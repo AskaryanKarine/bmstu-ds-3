@@ -7,55 +7,139 @@ on:
     branches:
       - master
 jobs:
-  build:
+  test-gateway:
+    name: Test Gateway Service
+    uses: ./.github/workflows/test.yml
+    with:
+      service-name: gateway
+
+  test-loyalty:
+    name: Test Loyalty Service
+    uses: ./.github/workflows/test.yml
+    with:
+      service-name: loyalty
+
+  test-payment:
+    name: Test Payment Service
+    uses: ./.github/workflows/test.yml
+    with:
+      service-name: payment
+
+  test-reservation:
+    name: Test Reservation Service
+    uses: ./.github/workflows/test.yml
+    with:
+      service-name: reservation
+
+  build-gateway:
+    name: Build Gateway Service
+    needs: [ "test-gateway" ]
+    uses: ./.github/workflows/build.yml
+    with:
+      service-name: gateway
+    secrets:
+      REGISTRY_TOKEN: ${{ secrets.REGISTRY_TOKEN }}
+
+  build-loyalty:
+    name: Build Loyalty Service
+    needs: [ "test-loyalty" ]
+    uses: ./.github/workflows/build.yml
+    with:
+      service-name: loyalty
+    secrets:
+      REGISTRY_TOKEN: ${{ secrets.REGISTRY_TOKEN }}
+
+  build-payment:
+    name: Build Payment Service
+    needs: [ "test-payment" ]
+    uses: ./.github/workflows/build.yml
+    with:
+      service-name: payment
+    secrets:
+      REGISTRY_TOKEN: ${{ secrets.REGISTRY_TOKEN }}
+
+  build-reservation:
+    name: Build Reservation Service
+    needs: [ "test-reservation" ]
+    uses: ./.github/workflows/build.yml
+    with:
+      service-name: reservation
+    secrets:
+      REGISTRY_TOKEN: ${{ secrets.REGISTRY_TOKEN }}
+
+  deploy-gateway:
+    name: Deploy Gateway Service
+    needs: [ "build-gateway" ]
+    uses: ./.github/workflows/deploy.yml
+    with:
+      service-name: gateway
+      service-port: 8080
+    secrets:
+      REGISTRY_TOKEN: ${{ secrets.REGISTRY_TOKEN }}
+      REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+      REMOTE_KEY: ${{ secrets.REMOTE_KEY }}
+      REMOTE_USER: ${{ secrets.REMOTE_USER }}
+
+  deploy-loyalty:
+    name: Deploy Loyalty Service
+    needs: [ "build-loyalty" ]
+    uses: ./.github/workflows/deploy.yml
+    with:
+      service-name: loyalty
+      service-port: 8050
+    secrets:
+      REGISTRY_TOKEN: ${{ secrets.REGISTRY_TOKEN }}
+      REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+      REMOTE_KEY: ${{ secrets.REMOTE_KEY }}
+      REMOTE_USER: ${{ secrets.REMOTE_USER }}
+
+  deploy-payment:
+    name: Deploy Payment Service
+    needs: [ "build-payment" ]
+    uses: ./.github/workflows/deploy.yml
+    with:
+      service-name: payment
+      service-port: 8060
+    secrets:
+      REGISTRY_TOKEN: ${{ secrets.REGISTRY_TOKEN }}
+      REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+      REMOTE_KEY: ${{ secrets.REMOTE_KEY }}
+      REMOTE_USER: ${{ secrets.REMOTE_USER }}
+
+  deploy-reservation:
+    name: Deploy Gateway Service
+    needs: [ "build-reservation" ]
+    uses: ./.github/workflows/deploy.yml
+    with:
+      service-name: reservation
+      service-port: 8070
+    secrets:
+      REGISTRY_TOKEN: ${{ secrets.REGISTRY_TOKEN }}
+      REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+      REMOTE_KEY: ${{ secrets.REMOTE_KEY }}
+      REMOTE_USER: ${{ secrets.REMOTE_USER }}
+
+  api_test:
     name: Autograding
+    needs: [ "deploy-gateway", "deploy-loyalty", "deploy-payment", "deploy-reservation" ]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - uses: docker/setup-buildx-action@v2
-
-      # TODO build and run unit tests
-
-      - name: Build images
-        timeout-minutes: 10
-        run: docker compose build
+      - uses: actions/checkout@v4
 
       - name: Run containers
         timeout-minutes: 5
-        run: |
-          docker compose up -d
-          ./scripts/wait-script.sh
+        run: ./scripts/wait-script.sh
         env:
           WAIT_PORTS: 8080,8070,8060,8050
-
-      # TODO setup variant, service and port
 
       - name: Run API Tests
         timeout-minutes: 5
         run: ./scripts/test-script.sh
         env:
-          VARIANT: <variant>
-          SERVICE_NAME: <your service name>
-          PORT_NUMBER: <port number>
+          VARIANT: v2
+          SERVICE_NAME: loyalty
+          PORT_NUMBER: 8050
 
       - uses: education/autograding@v1
         id: autograder
         continue-on-error: true
-
-      - name: Github auto grader mark
-        uses: Romanow/google-sheet-autograder-marker@v1.0
-        with:
-          google_token: ${{secrets.GOOGLE_API_KEY}}
-          sheet_id: "1xkgjUX6Qmk7rdJG-QPOToav-HWWtthJjnShIKnw3oIY"
-          homework_number: 3
-          user_column: 'D'
-          column_offset: 'F'
-          mark: "'+"
-
-      - name: Stop containers
-        if: always()
-        continue-on-error: true
-        run: docker compose down -v
