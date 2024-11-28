@@ -21,18 +21,23 @@ func (s *Server) getUserInfo(c echo.Context) error {
 	for i := range reservationsByUser {
 		paymentInfo, err := s.payment.GetByUUID(reservationsByUser[i].PaymentUID)
 		if err != nil {
-			return processError(c, err)
+			if isValidationError(err) {
+				return processError(c, err)
+			}
 		}
 		reservationsByUser[i].Payment = paymentInfo
 		reservationsResp = append(reservationsResp, reservationsByUser[i].ReservationResponse)
 	}
 	loyaltyResp, err := s.loyalty.GetLoyaltyByUser(username)
 	if err != nil {
-		return processError(c, err)
+		if isValidationError(err) {
+			return processError(c, err)
+		}
 	}
 	loyaltyResp.ReservationCount = nil
-	return c.JSON(http.StatusOK, echo.Map{
-		"reservations": reservationsResp,
-		"loyalty":      loyaltyResp,
-	})
+	userInfoResp := models.UserInfoResponse{
+		Reservations: reservationsResp,
+		Loyalty:      loyaltyResp,
+	}
+	return c.JSON(http.StatusOK, userInfoResp)
 }

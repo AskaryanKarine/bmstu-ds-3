@@ -6,7 +6,7 @@ type ReservationResponse struct {
 	StartDate      string            `json:"startDate"`
 	EndDate        string            `json:"endDate"`
 	Status         PaymentStatusType `json:"status"`
-	Payment        PaymentInfo       `json:"payment"`
+	Payment        PaymentInfo       `json:"payment,omitempty"`
 }
 
 type CreateReservationRequest struct {
@@ -19,7 +19,7 @@ type CreateReservationResponse struct {
 	ReservationUid string            `json:"reservationUid"`
 	Discount       int               `json:"discount"`
 	Status         PaymentStatusType `json:"status"`
-	Payment        PaymentInfo       `json:"payment"`
+	Payment        PaymentInfo       `json:"payment,omitempty"`
 	CreateReservationRequest
 }
 

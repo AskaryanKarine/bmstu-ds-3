@@ -34,7 +34,10 @@ func (l *LoyaltyClient) GetLoyaltyByUser(username string) (models.LoyaltyInfoRes
 	req.Header.Set("X-User-Name", username)
 	resp, err := l.client.Do(req)
 	if err != nil {
-		return models.LoyaltyInfoResponse{}, fmt.Errorf("failed to make request: %w", err)
+		return models.LoyaltyInfoResponse{}, models.ErrorResponse{
+			Message:    "Loyalty Service unavailable",
+			StatusCode: http.StatusServiceUnavailable,
+		}
 	}
 
 	if resp == nil {
@@ -79,7 +82,10 @@ func (l *LoyaltyClient) DecreaseLoyalty(username string) error {
 	req.Header.Set("X-User-Name", username)
 	resp, err := l.client.Do(req)
 	if err != nil {
-		return fmt.Errorf("failed to make request: %w", err)
+		return models.ErrorResponse{
+			Message:    "Loyalty Service unavailable",
+			StatusCode: http.StatusServiceUnavailable,
+		}
 	}
 
 	if resp == nil {
@@ -119,7 +125,10 @@ func (l *LoyaltyClient) IncreaseLoyalty(username string) error {
 	req.Header.Set("X-User-Name", username)
 	resp, err := l.client.Do(req)
 	if err != nil {
-		return fmt.Errorf("failed to make request: %w", err)
+		return models.ErrorResponse{
+			Message:    "Loyalty Service unavailable",
+			StatusCode: http.StatusServiceUnavailable,
+		}
 	}
 
 	if resp == nil {

@@ -9,9 +9,9 @@ const (
 
 type PaymentInfo struct {
 	// Status - статус операции оплаты
-	Status PaymentStatusType `json:"status"`
+	Status PaymentStatusType `json:"status,omitempty"`
 	// Price - сумма операции
-	Price int `json:"price"`
+	Price int `json:"price,omitempty"`
 }
 
 type PaymentCreateRequest struct {

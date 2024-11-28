@@ -18,3 +18,11 @@ func processError(c echo.Context, err error) error {
 	}
 	return c.JSON(http.StatusInternalServerError, err)
 }
+
+func isValidationError(err error) bool {
+	var valErr models.ValidationErrorResponse
+	if errors.As(err, &valErr) {
+		return true
+	}
+	return false
+}

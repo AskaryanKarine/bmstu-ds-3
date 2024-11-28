@@ -38,7 +38,9 @@ func (s *Server) getReservations(c echo.Context) error {
 	for i := range reservationsByUser {
 		paymentInfo, err := s.payment.GetByUUID(reservationsByUser[i].PaymentUID)
 		if err != nil {
-			return processError(c, err)
+			if isValidationError(err) {
+				return processError(c, err)
+			}
 		}
 		reservationsByUser[i].Payment = paymentInfo
 		reservationsResp = append(reservationsResp, reservationsByUser[i].ReservationResponse)
@@ -68,7 +70,9 @@ func (s *Server) getReservationsByUID(c echo.Context) error {
 
 	paymentInfo, err := s.payment.GetByUUID(reservationsByUser.PaymentUID)
 	if err != nil {
-		return processError(c, err)
+		if isValidationError(err) {
+			return processError(c, err)
+		}
 	}
 	reservationsByUser.Payment = paymentInfo
 	return c.JSON(http.StatusOK, reservationsByUser.ReservationResponse)
@@ -150,6 +154,10 @@ func (s *Server) createReservation(c echo.Context) error {
 
 	err = s.loyalty.IncreaseLoyalty(username)
 	if err != nil {
+		paymentErr := s.payment.Cancel(extendedPaymentInfo.PaymentUid)
+		if paymentErr != nil {
+			return processError(c, paymentErr)
+		}
 		return processError(c, err)
 	}
 

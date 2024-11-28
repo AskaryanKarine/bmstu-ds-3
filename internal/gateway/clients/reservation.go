@@ -33,7 +33,10 @@ func (r *ReservationClient) GetReservationByUUID(username, uuid string) (models.
 
 	resp, err := r.client.Do(req)
 	if err != nil {
-		return models.ExtendedReservationResponse{}, fmt.Errorf("failed to make request: %w", err)
+		return models.ExtendedReservationResponse{}, models.ErrorResponse{
+			Message:    "Reservation Service unavailable",
+			StatusCode: http.StatusServiceUnavailable,
+		}
 	}
 
 	if resp == nil {
@@ -78,7 +81,10 @@ func (r *ReservationClient) GetReservationsByUser(username string) ([]models.Ext
 
 	resp, err := r.client.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("failed to make request: %w", err)
+		return nil, models.ErrorResponse{
+			Message:    "Reservation Service unavailable",
+			StatusCode: http.StatusServiceUnavailable,
+		}
 	}
 	if resp == nil {
 		return nil, models.EmptyResponseError
@@ -122,7 +128,10 @@ func (r *ReservationClient) CancelReservation(username, uuid string) error {
 
 	resp, err := r.client.Do(req)
 	if err != nil {
-		return fmt.Errorf("failed to make request: %w", err)
+		return models.ErrorResponse{
+			Message:    "Reservation Service unavailable",
+			StatusCode: http.StatusServiceUnavailable,
+		}
 	}
 	if resp == nil {
 		return models.EmptyResponseError
@@ -162,7 +171,10 @@ func (r *ReservationClient) GetHotels(page, size int) (models.PaginationResponse
 
 	resp, err := r.client.Do(req)
 	if err != nil {
-		return models.PaginationResponse{}, fmt.Errorf("failed to make request: %w", err)
+		return models.PaginationResponse{}, models.ErrorResponse{
+			Message:    "Reservation Service unavailable",
+			StatusCode: http.StatusServiceUnavailable,
+		}
 	}
 	if resp == nil {
 		return models.PaginationResponse{}, models.EmptyResponseError
@@ -211,7 +223,10 @@ func (r *ReservationClient) GetHotelByUUID(uuid string) (models.HotelResponse, e
 
 	resp, err := r.client.Do(req)
 	if err != nil {
-		return models.HotelResponse{}, fmt.Errorf("failed to make request: %w", err)
+		return models.HotelResponse{}, models.ErrorResponse{
+			Message:    "Reservation Service unavailable",
+			StatusCode: http.StatusServiceUnavailable,
+		}
 	}
 	if resp == nil {
 		return models.HotelResponse{}, models.EmptyResponseError
@@ -259,7 +274,10 @@ func (r *ReservationClient) CreateReservation(model models.ExtendedCreateReserva
 
 	resp, err := r.client.Do(req)
 	if err != nil {
-		return "", fmt.Errorf("failed to make request: %w", err)
+		return "", models.ErrorResponse{
+			Message:    "Reservation Service unavailable",
+			StatusCode: http.StatusServiceUnavailable,
+		}
 	}
 	if resp == nil {
 		return "", models.EmptyResponseError

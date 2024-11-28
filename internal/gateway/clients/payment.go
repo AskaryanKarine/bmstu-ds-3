@@ -30,7 +30,10 @@ func (p *PaymentClient) GetByUUID(uuid string) (models.PaymentInfo, error) {
 
 	resp, err := p.client.Do(req)
 	if err != nil {
-		return models.PaymentInfo{}, fmt.Errorf("failed to make request: %w", err)
+		return models.PaymentInfo{}, models.ErrorResponse{
+			Message:    "Payment Service unavailable",
+			StatusCode: http.StatusServiceUnavailable,
+		}
 	}
 
 	if resp == nil {
@@ -73,7 +76,10 @@ func (p *PaymentClient) Cancel(uuid string) error {
 	}
 	resp, err := p.client.Do(req)
 	if err != nil {
-		return fmt.Errorf("failed to make request: %w", err)
+		return models.ErrorResponse{
+			Message:    "Payment Service unavailable",
+			StatusCode: http.StatusServiceUnavailable,
+		}
 	}
 	if resp == nil {
 		return models.EmptyResponseError
@@ -106,7 +112,10 @@ func (p *PaymentClient) CreatePayment(payment models.PaymentCreateRequest) (mode
 	urlReq := fmt.Sprintf("%s/%s", p.baseUrl, "payments")
 	reqBody, err := json.Marshal(payment)
 	if err != nil {
-		return models.ExtendedPaymentInfo{}, fmt.Errorf("failed to build request body: %w", err)
+		return models.ExtendedPaymentInfo{}, models.ErrorResponse{
+			Message:    "Payment Service unavailable",
+			StatusCode: http.StatusServiceUnavailable,
+		}
 	}
 	req, err := http.NewRequest(http.MethodPost, urlReq, bytes.NewBuffer(reqBody))
 	if err != nil {
