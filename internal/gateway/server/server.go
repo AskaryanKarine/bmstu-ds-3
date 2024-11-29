@@ -5,7 +5,7 @@ import (
 	"github.com/AskaryanKarine/bmstu-ds-3/internal/gateway/config"
 	"github.com/AskaryanKarine/bmstu-ds-3/pkg/app"
 	"github.com/labstack/echo/v4"
-	"net/http"
+	circuit "github.com/rubyist/circuitbreaker"
 	"time"
 )
 
@@ -24,13 +24,9 @@ type Server struct {
 
 func NewServer(cfg config.Config) *Server {
 	e := echo.New()
-	client := &http.Client{
-		Transport: &http.Transport{MaxConnsPerHost: defaultMaxConnsPerHost},
-		Timeout:   defaultTimeout,
-	}
-	payment := clients.NewPaymentClient(client, cfg.PaymentService)
-	reservation := clients.NewReservationClient(client, cfg.ReservationService)
-	loyalty := clients.NewLoyaltyClient(client, cfg.LoyaltyService)
+	payment := clients.NewPaymentClient(circuit.NewHTTPClient(0, 10, nil), cfg.PaymentService)
+	reservation := clients.NewReservationClient(circuit.NewHTTPClient(0, 10, nil), cfg.ReservationService)
+	loyalty := clients.NewLoyaltyClient(circuit.NewHTTPClient(0, 10, nil), cfg.LoyaltyService)
 	s := &Server{
 		echo:        e,
 		cfg:         cfg,
