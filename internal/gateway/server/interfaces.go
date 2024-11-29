@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"github.com/AskaryanKarine/bmstu-ds-3/pkg/models"
 )
 
@@ -23,4 +24,8 @@ type paymentClient interface {
 	GetByUUID(uuid string) (models.PaymentInfo, error)
 	Cancel(uuid string) error
 	CreatePayment(payment models.PaymentCreateRequest) (models.ExtendedPaymentInfo, error)
+}
+
+type retryerQueueProducer interface {
+	RetryLoyaltyDecrease(ctx context.Context, username string) error
 }

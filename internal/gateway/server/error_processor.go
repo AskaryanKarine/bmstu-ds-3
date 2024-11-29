@@ -26,3 +26,11 @@ func isValidationError(err error) bool {
 	}
 	return false
 }
+
+func isUnavailableError(err error) bool {
+	var respErr models.ErrorResponse
+	if errors.As(err, &respErr) && respErr.StatusCode == http.StatusServiceUnavailable {
+		return true
+	}
+	return false
+}

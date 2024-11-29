@@ -109,7 +109,14 @@ func (s *Server) canceledReservation(c echo.Context) error {
 
 	err = s.loyalty.DecreaseLoyalty(username)
 	if err != nil {
-		return processError(c, err)
+		if isUnavailableError(err) {
+			err := s.retryerQueue.RetryLoyaltyDecrease(c.Request().Context(), username)
+			if err != nil {
+				return processError(c, err)
+			}
+		} else {
+			return processError(c, err)
+		}
 	}
 
 	return c.JSON(http.StatusNoContent, echo.Map{})

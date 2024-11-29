@@ -10,6 +10,9 @@ type Config struct {
 	LoyaltyService     string `env:"LOYALTY_SERVICE"`
 	PaymentService     string `env:"PAYMENT_SERVICE"`
 	ReservationService string `env:"RESERVATION_SERVICE"`
+
+	KafkaHost                 string `env:"KAFKA_HOST"`
+	KafkaLoyaltyDecreaseTopic string `env:"KAFKA_LOYALTY_DECREASE_TOPIC" env-default:"loyalty_decrease_default"`
 }
 
 func NewConfig() (Config, error) {
