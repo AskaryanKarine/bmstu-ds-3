@@ -40,7 +40,7 @@ step() {
 
   printf "=== Step %d: %s %s ===\n" "$step" "$operation" "$service"
 
-  ssh -i "$temp_key" -o StrictHostKeyChecking=no "$ssh_user"@212.193.27.61.ru "docker $operation $service"
+  ssh -i "$temp_key" -o StrictHostKeyChecking=no "$ssh_user"@212.193.27.61 "docker $operation $service"
 
   if [[ "$operation" == "start" ]]; then
     "$path"/wait-for.sh -t 120 "http://212.193.27.61:$port/manage/health" -- echo "Host localhost:$port is active"
