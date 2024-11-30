@@ -14,8 +14,8 @@ type ReservationResponse struct {
 }
 
 func (r *ReservationResponse) ToResponse(info models.HotelInfo) (models.ExtendedReservationResponse, error) {
-	//layout := "2006-01-02T15:04:05Z"
-	layout := "2006-01-02T15:04:05-07:00"
+	layout := "2006-01-02T15:04:05Z"
+	//layout := "2006-01-02T15:04:05-07:00"
 	tStart, err := time.Parse(layout, r.StartDate)
 	if err != nil {
 		return models.ExtendedReservationResponse{}, err
