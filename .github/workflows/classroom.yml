@@ -107,7 +107,7 @@ jobs:
       REMOTE_USER: ${{ secrets.REMOTE_USER }}
 
   deploy-reservation:
-    name: Deploy Gateway Service
+    name: Deploy Reservation Service
     needs: [ "build-reservation" ]
     uses: ./.github/workflows/deploy.yml
     with:
