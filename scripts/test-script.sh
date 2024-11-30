@@ -8,6 +8,10 @@ port=${3:-${PORT_NUMBER}}
 
 path=$(dirname "$0")
 
+temp_key=$(mktemp)
+echo "$ssh_private_key" > "$temp_key"
+chmod 600 "$temp_key"
+
 timed() {
   end=$(date +%s)
   dt=$(("$end" - $1))
@@ -36,7 +40,8 @@ step() {
 
   printf "=== Step %d: %s %s ===\n" "$step" "$operation" "$service"
 
-  docker compose "$operation" "$service"
+  ssh -i "$temp_key" -o StrictHostKeyChecking=no "$ssh_user"@212.193.27.61.ru "docker $operation $service"
+
   if [[ "$operation" == "start" ]]; then
     "$path"/wait-for.sh -t 120 "http://212.193.27.61:$port/manage/health" -- echo "Host localhost:$port is active"
   fi
@@ -70,3 +75,5 @@ step 3
 
 # start service
 step 4
+
+rm -f "$temp_key"
