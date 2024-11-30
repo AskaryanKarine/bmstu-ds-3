@@ -5,6 +5,8 @@ set -e
 variant=${1:-${VARIANT}}
 service=${2:-${SERVICE_NAME}}
 port=${3:-${PORT_NUMBER}}
+ssh_private_key=${4:-${SSH_PRIVATE_KEY}}
+ssh_user=${5:-${SSH_USER}}
 
 path=$(dirname "$0")
 
@@ -40,7 +42,7 @@ step() {
 
   printf "=== Step %d: %s %s ===\n" "$step" "$operation" "$service"
 
-  ssh -vvv -i "$temp_key" -o StrictHostKeyChecking=no root@212.193.27.61 "echo 'hi'"
+  ssh -vvv -i "$temp_key" -o StrictHostKeyChecking=no "$ssh_user"@212.193.27.61 "docker $operation $service"
 
   if [[ "$operation" == "start" ]]; then
     "$path"/wait-for.sh -t 120 "http://212.193.27.61:$port/manage/health" -- echo "Host localhost:$port is active"
